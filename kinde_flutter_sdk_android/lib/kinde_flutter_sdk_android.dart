@@ -21,12 +21,8 @@ class KindeFlutterSdkAndroid extends KindeFlutterSdkPlatform {
 
   @override
   Future<KindeClient> createKindeClient(KindeClientOptions options) {
-    Map<String, dynamic> params = {
-      "options": options.toJson()
-    };
-
     return _methodChannel.invokeMethod<void>(
-      'initialize', params
+      'initialize', options.toJson()
     ).then((_) => KindeClient(
         token: "token",
         idToken: "idToken",

@@ -21,6 +21,25 @@ class KindeFlutterSdkIOS extends KindeFlutterSdkPlatform {
   }
 
   @override
+  Future<KindeClient> createKindeClient(KindeClientOptions options) {
+    final optionsJson = options.toJson();
+    optionsJson["scopes"] = options.scopes.join(" ");
+    return _methodChannel.invokeMethod<bool>(
+        'initialize', optionsJson
+    ).then((result) {
+      print(result);
+      return KindeClient(
+        token: "token",
+        idToken: "idToken",
+        isAuthenticated: false,
+        login: login,
+        getUser: getUser,
+        logout: logout
+    );
+    });
+  }
+
+  @override
   Future<bool> isAuthenticate(KindeClient client) async {
     return _methodChannel.invokeMethod<bool>(
       'isAuthenticate',
@@ -95,7 +114,28 @@ class KindeFlutterSdkIOS extends KindeFlutterSdkPlatform {
         'loginHint': loginHint,
         'authUrlParams': authUrlParams?.toMap()
       },
-    );
+    ).then((token) {
+      return token ?? "";
+    });
+  }
+
+  @override
+  Future<UserProfileV2> getUserProfileV2(KindeClient client) {
+    return _methodChannel.invokeMethod<dynamic>(
+      'logout',
+    ).then((result) {
+      if(result is String) {
+        throw Exception(result);
+      } else {
+        final builder = UserProfileV2Builder();
+        builder.id = result["id"];
+        builder.providedId = result["providedId"];
+        builder.name = result["name"];
+        builder.familyName = result["familyName"];
+        builder.updatedAt = result["updatedAt"];
+        return builder.build();
+      }
+    });
   }
 
   @override

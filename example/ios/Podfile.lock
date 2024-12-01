@@ -1,6 +1,13 @@
 PODS:
+  - AppAuth (1.7.5):
+    - AppAuth/Core (= 1.7.5)
+    - AppAuth/ExternalUserAgent (= 1.7.5)
+  - AppAuth/Core (1.7.5)
+  - AppAuth/ExternalUserAgent (1.7.5):
+    - AppAuth/Core
   - Flutter (1.0.0)
   - kinde_flutter_sdk_ios (0.0.1):
+    - AppAuth (>= 1.6.2)
     - Flutter
   - url_launcher_ios (0.0.1):
     - Flutter
@@ -9,6 +16,10 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - kinde_flutter_sdk_ios (from `.symlinks/plugins/kinde_flutter_sdk_ios/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+
+SPEC REPOS:
+  trunk:
+    - AppAuth
 
 EXTERNAL SOURCES:
   Flutter:
@@ -19,10 +30,11 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
+  AppAuth: 501c04eda8a8d11f179dbe8637b7a91bb7e5d2fa
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  kinde_flutter_sdk_ios: 374363bbd6db9df106fdf2758a0e68b7f4832bc7
+  kinde_flutter_sdk_ios: 8a9a30b1e5890617c69339b37c11dda8143e1ca7
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
 
-PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
+PODFILE CHECKSUM: a57f30d18f102dd3ce366b1d62a55ecbef2158e5
 
 COCOAPODS: 1.15.2

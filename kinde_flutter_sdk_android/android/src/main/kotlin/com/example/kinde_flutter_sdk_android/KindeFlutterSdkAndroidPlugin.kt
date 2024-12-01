@@ -97,7 +97,7 @@ class KindeFlutterSdkAndroidPlugin: FlutterPlugin, MethodCallHandler, ActivityAw
   private fun initialize(call: MethodCall, result: Result) {
     try {
       val arguments = call.arguments as Map<String, Any>
-      kindeOptions = KindeClientOptions.fromMap(arguments["options"] as Map<String, Any>)
+      kindeOptions = KindeClientOptions.fromMap(arguments)
 
       serviceConfiguration = AuthorizationServiceConfiguration(
         Uri.parse(AUTH_URL.format(kindeOptions.domain)),

@@ -13,10 +13,10 @@ dependencies:
 
   pubspec_parse: ^1.2.1
   flutter_appauth: ^6.0.1
-  flutter_custom_tabs: ^2.0.0
-  flutter_inappwebview: ^6.0.0
+#  flutter_custom_tabs: ^2.0.0 ///use browser:1.8.0
+#  flutter_inappwebview: ^6.0.0
   hive: ^2.2.3
-  flutter_secure_storage: ^8.0.0
+#  flutter_secure_storage: ^8.0.0
   path_provider: ^2.0.15
   dio: ^5.0.0
   jose: ^0.3.3
@@ -25,6 +25,9 @@ dependencies:
   built_value: '>=8.4.0 <9.0.0'
   built_collection: '>=5.1.1 <6.0.0'
   mockito: ^5.4.2
+  kinde_flutter_sdk_platform_interface:
+    path: kinde_flutter_sdk_platform_interface
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
@@ -53,10 +56,12 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.kinde.kinde_flutter_sdk
         pluginClass: KindeFlutterSdkPlugin
+        default_package: kinde_flutter_sdk_android
       ios:
         pluginClass: KindeFlutterSdkPlugin
+      web:
+        default_package: kinde_flutter_sdk_web
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

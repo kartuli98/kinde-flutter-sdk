@@ -1,0 +1,75 @@
+group = "com.example.kinde_flutter_sdk_android"
+version = "1.0-SNAPSHOT"
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+
+android {
+    if (project.android.hasProperty("namespace")) {
+        namespace = "com.example.kinde_flutter_sdk_android"
+    }
+
+    compileSdk = 34
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main.java.srcDirs += "src/main/kotlin"
+        test.java.srcDirs += "src/test/kotlin"
+    }
+
+    defaultConfig {
+        minSdk = 26
+        multiDexEnabled true
+    }
+
+    dependencies {
+        testImplementation("org.jetbrains.kotlin:kotlin-test")
+        testImplementation("org.mockito:mockito-core:5.0.0")
+    }
+
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+
+            testLogging {
+               events "passed", "skipped", "failed", "standardOut", "standardError"
+               outputs.upToDateWhen {false}
+               showStandardStreams = true
+            }
+        }
+    }
+}
+
+dependencies {
+  def appcompat_version = "1.6.1"
+  def retrofit2_version = "2.9.0"
+
+  implementation "androidx.appcompat:appcompat:$appcompat_version"
+  // For loading and tinting drawables on older versions of the platform
+  implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
+
+  implementation "com.squareup.retrofit2:retrofit:$retrofit2_version"
+  implementation "com.squareup.retrofit2:converter-gson:$retrofit2_version"
+  implementation "com.squareup.retrofit2:converter-scalars:$retrofit2_version"
+
+  implementation 'org.jetbrains.kotlin:kotlin-stdlib:2.0.21'
+  implementation 'androidx.annotation:annotation-jvm:1.9.1'
+  implementation 'net.openid:appauth:0.11.1'
+  implementation 'com.android.support:multidex:2.0.1'
+  compileOnly files('tempLibs/flutter.jar')
+}

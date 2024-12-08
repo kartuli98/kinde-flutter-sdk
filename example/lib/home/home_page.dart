@@ -67,6 +67,7 @@ class _HomePageState extends State<HomePage> {
 
   _signIn() {
     kindeClient.login(type: AuthFlowType.pkce).then((token) {
+      print("Flutter App Debug: login() => token: $token");
       if (token != null) {
         _loggedIn.value = true;
         _getProfile();
@@ -75,9 +76,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   _signOut() {
+    print("Flutter App Debug: logout()");
     kindeClient.logout().then((value) {
-      _loggedIn.value = false;
-      _profile.value = null;
+      if(value) {
+        _loggedIn.value = false;
+        _profile.value = null;
+      }
+    }).onError((error, _) {
+      print(error);
     });
   }
 

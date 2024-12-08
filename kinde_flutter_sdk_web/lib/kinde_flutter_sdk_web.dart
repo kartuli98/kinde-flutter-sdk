@@ -67,7 +67,7 @@ class KindeFlutterSdkWeb extends KindeFlutterSdkPlatform {
   }
 
   @override
-  Future<void> logout(KindeClient client) async {
-    await promiseToFuture<void>(client.logout());
+  Future<bool> logout(KindeClient client) async {
+    return await promiseToFuture<bool>(client.logout());
   }
 }

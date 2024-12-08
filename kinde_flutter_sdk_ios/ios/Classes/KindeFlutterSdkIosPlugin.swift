@@ -68,9 +68,14 @@ public class KindeFlutterSdkIosPlugin: NSObject, FlutterPlugin {
     }
   }
   
-  public func signOut(_ call: FlutterMethodCall, _ result: FlutterResult) {
+  public func signOut(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
     Task {
-        await KindeSDKAPI.auth.logout()
+      do {
+        let isLogoutSuccess = await KindeSDKAPI.auth.logout()
+        result(isLogoutSuccess);
+      } catch {
+        result(error);
+      }
     }
   }
   
@@ -118,7 +123,7 @@ public class KindeFlutterSdkIosPlugin: NSObject, FlutterPlugin {
         let userName = "\(userProfile.givenName ?? "") \(userProfile.familyName ?? "")"
         print("Got profile for user \(userName)")
         let encoder = JSONEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
+//        encoder.keyEncodingStrategy = .convertToSnakeCase
         let jsonData = try encoder.encode(userProfile)
         result(jsonData)
       } catch {

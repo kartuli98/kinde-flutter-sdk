@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kinde_flutter_sdk_platform_interface/platform.dart';
 
@@ -113,9 +114,16 @@ Future<String?> login(
 }
 
 @override
-Future<void> logout(KindeClient client) {
-  return _methodChannel.invokeMethod<void>(
+Future<bool> logout(KindeClient client) {
+  return _methodChannel.invokeMethod<dynamic>(
     'logout',
-  );
+  ).then((isLogoutSuccess) {
+    debugPrint("Android Flutter Plugin Debug: logout() => isLogoutSuccess: $isLogoutSuccess");
+    if(isLogoutSuccess is bool) {
+      return isLogoutSuccess;
+    } else {
+      throw KindeError(isLogoutSuccess);
+    }
+  });
 }
 }

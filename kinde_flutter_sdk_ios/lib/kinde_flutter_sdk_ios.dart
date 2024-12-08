@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kinde_flutter_sdk_platform_interface/platform.dart';
 
@@ -22,12 +25,13 @@ class KindeFlutterSdkIOS extends KindeFlutterSdkPlatform {
 
   @override
   Future<KindeClient> createKindeClient(KindeClientOptions options) {
+    print("debug logout_uri: ${options.logout_uri}");
     final optionsJson = options.toJson();
     optionsJson["scopes"] = options.scopes.join(" ");
     return _methodChannel.invokeMethod<bool>(
         'initialize', optionsJson
     ).then((result) {
-      print(result);
+      debugPrint("Flutter Plugin Debug: createKindeClient() => result: $result");
       return KindeClient(
         token: "token",
         idToken: "idToken",
@@ -43,7 +47,10 @@ class KindeFlutterSdkIOS extends KindeFlutterSdkPlatform {
   Future<bool> isAuthenticate(KindeClient client) async {
     return _methodChannel.invokeMethod<bool>(
       'isAuthenticate',
-    ).then((bool? value) => value ?? false);
+    ).then((bool? value) {
+      debugPrint("Flutter Plugin Debug: isAuthenticate() => result: $value");
+      return value ?? false;
+    });
   }
 
   @override
@@ -53,14 +60,19 @@ class KindeFlutterSdkIOS extends KindeFlutterSdkPlatform {
       <String, Object>{
         'orgName': orgName,
       },
-    );
+    ).then((_) {
+      debugPrint("Flutter Plugin Debug: createOrg()");
+    });
   }
 
   @override
   Future<String> getToken() {
     return _methodChannel.invokeMethod<String>(
       'getToken',
-    ).then((String? value) => value ?? "");;
+    ).then((String? value) {
+      debugPrint("Flutter Plugin Debug: getToken() => result: $value");
+      return value ?? "";
+    });;
   }
 
 // @override
@@ -96,7 +108,9 @@ class KindeFlutterSdkIOS extends KindeFlutterSdkPlatform {
         'loginHint': loginHint,
         'authUrlParams': authUrlParams?.toMap()
       },
-    );
+    ).then((_) {
+      debugPrint("Flutter Plugin Debug: register()");
+    });
   }
 
   @override
@@ -115,6 +129,7 @@ class KindeFlutterSdkIOS extends KindeFlutterSdkPlatform {
         'authUrlParams': authUrlParams?.toMap()
       },
     ).then((token) {
+      print("Flutter Plugin Debug: login() => token: $token");
       return token ?? "";
     });
   }
@@ -122,26 +137,35 @@ class KindeFlutterSdkIOS extends KindeFlutterSdkPlatform {
   @override
   Future<UserProfileV2> getUserProfileV2(KindeClient client) {
     return _methodChannel.invokeMethod<dynamic>(
-      'logout',
-    ).then((result) {
+      'getUserProfile',
+    ).then((rawResult) {
+      final result = jsonDecode(Utf8Decoder().convert(rawResult));
+      debugPrint("Flutter Plugin Debug: getUserProfileV2() => result: $result");
       if(result is String) {
         throw Exception(result);
       } else {
         final builder = UserProfileV2Builder();
         builder.id = result["id"];
-        builder.providedId = result["providedId"];
         builder.name = result["name"];
-        builder.familyName = result["familyName"];
-        builder.updatedAt = result["updatedAt"];
+        builder.givenName = result["given_name"];
+        builder.familyName = result["family_name"];
+        builder.updatedAt = result["updated_at"];
         return builder.build();
       }
     });
   }
 
   @override
-  Future<void> logout(KindeClient client) {
-    return _methodChannel.invokeMethod<void>(
+  Future<bool> logout(KindeClient client) {
+    return _methodChannel.invokeMethod<dynamic>(
       'logout',
-    );
+    ).then((isLogoutSuccess) {
+      debugPrint("IOS Flutter Plugin Debug: logout() => isLogoutSuccess: $isLogoutSuccess");
+      if(isLogoutSuccess is bool) {
+        return isLogoutSuccess;
+      } else {
+        throw KindeError(isLogoutSuccess);
+      }
+    });
   }
 }

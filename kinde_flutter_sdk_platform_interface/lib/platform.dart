@@ -9,3 +9,5 @@ export 'src/models/user_profile_v2.dart';
 export 'src/models/kinde_client.dart';
 export 'src/models/kinde_user.dart';
 export 'src/models/kinde_client_options.dart';
+export 'src/models/kinde_error.dart';
+

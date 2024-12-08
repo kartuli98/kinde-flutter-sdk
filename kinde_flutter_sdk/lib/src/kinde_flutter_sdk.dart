@@ -113,7 +113,7 @@ class KindeFlutterSDK {
     return KindeFlutterSdkPlatform.instance.getPlatformVersion();
   }
 
-  Future<void> logout() async {
+  Future<bool> logout() async {
     assert(_kindeClient != null, "firstly call initializeSDK() method");
     return KindeFlutterSdkPlatform.instance.logout(_kindeClient!);
   }

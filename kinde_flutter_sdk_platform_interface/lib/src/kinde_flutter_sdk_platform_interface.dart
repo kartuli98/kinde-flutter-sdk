@@ -30,7 +30,7 @@ abstract class KindeFlutterSdkPlatform extends PlatformInterface {
     throw UnimplementedError('getPlatformVersion() has not been implemented.');
   }
 
-  Future<void> logout(KindeClient client) {
+  Future<bool> logout(KindeClient client) {
     throw UnimplementedError('logout() has not been implemented');
   }
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kinde_flutter_sdk_platform_interface/platform.dart';
@@ -22,23 +24,28 @@ class KindeFlutterSdkAndroid extends KindeFlutterSdkPlatform {
 
   @override
   Future<KindeClient> createKindeClient(KindeClientOptions options) {
-    return _methodChannel.invokeMethod<void>(
+    return _methodChannel.invokeMethod<bool>(
       'initialize', options.toJson()
-    ).then((_) => KindeClient(
+    ).then((result) {
+      debugPrint("ANDROID Flutter Plugin Debug: createKindeClient() => result: $result");
+      return KindeClient(
         token: "token",
         idToken: "idToken",
         isAuthenticated: false,
         login: login,
         getUser: getUser,
         logout: logout
-    ));
+    );
+    });
   }
 
 @override
 Future<bool> isAuthenticate(KindeClient client) async {
   return _methodChannel.invokeMethod<bool>(
     'isAuthenticate',
-  ).then((bool? value) => value ?? false);
+  ).then((bool? value) {
+    debugPrint("ANDROID Flutter Plugin Debug: isAuthenticate() => result: $value");
+    return value ?? false;});
 }
 
 @override
@@ -66,15 +73,22 @@ Future<String> getToken() {
 //   UserProfile().rebuild(updates)
 // }
 
-// @override
-// Future<UserProfileV2> getUserProfileV2() {
-//   return _methodChannel.invokeMethod<bool>(
-//     'launch',
-//     <String, Object>{
-//       'url': url,
-//     },
-//   );
-// }
+@override
+Future<UserProfileV2> getUserProfileV2(KindeClient client) {
+  return _methodChannel.invokeMethod<dynamic>(
+    'getUserProfile'
+  ).then((result) {
+    debugPrint("ANDROID Flutter Plugin Debug: getUserProfileV2() => result: $result");
+      final decodedResult = jsonDecode(result) as Map<String, dynamic>;
+      final builder = UserProfileV2Builder();
+      builder.id = decodedResult["id"];
+      builder.name = decodedResult["name"];
+      builder.givenName = decodedResult["given_name"];
+      builder.familyName = decodedResult["family_name"];
+      builder.updatedAt = int.parse(decodedResult["updated_at"]);
+      return builder.build();
+  });
+}
 
 @override
 Future<void> register(
@@ -104,13 +118,15 @@ Future<String?> login(
   return _methodChannel.invokeMethod<String>(
     'login',
     <String, Object?>{
-      ///todo
-      'type': type?.toString(),
+      'type': (type ?? AuthFlowType.pkce).name.toUpperCase(),
       'orgCode': orgCode,
       'loginHint': loginHint,
       'additionalParams': authUrlParams?.toMap()
     },
-  );
+  ).then((token) {
+    print("Flutter Android Plugin Debug: login() => token: $token");
+    return token ?? "";
+  });
 }
 
 @override

@@ -1,3 +1,4 @@
+import au.kinde.sdk.callApi
 import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationException.AuthorizationRequestErrors.SERVER_ERROR
@@ -26,7 +27,7 @@ class TokenRepository(private val tokenApi: TokenApi, private val version: Strin
         LANGUAGE_HEADER.format(version),
         tokenRequest.requestParameters.apply {
           put(TokenRequest.PARAM_CLIENT_ID, tokenRequest.clientId)
-        }).callApi(authState, tokenRequest)
+        }).callApi(authState, true)
     if (exception != null) return Pair(
       null,
       AuthorizationException(

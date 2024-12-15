@@ -25,13 +25,12 @@ class KindeFlutterSdkIOS extends KindeFlutterSdkPlatform {
 
   @override
   Future<KindeClient> createKindeClient(KindeClientOptions options) {
-    print("debug logout_uri: ${options.logout_uri}");
     final optionsJson = options.toJson();
     optionsJson["scopes"] = options.scopes.join(" ");
     return _methodChannel.invokeMethod<bool>(
         'initialize', optionsJson
     ).then((result) {
-      debugPrint("Flutter Plugin Debug: createKindeClient() => result: $result");
+      debugPrint("IOS Flutter Plugin Debug: createKindeClient() => result: $result");
       return KindeClient(
         token: "token",
         idToken: "idToken",
@@ -48,7 +47,7 @@ class KindeFlutterSdkIOS extends KindeFlutterSdkPlatform {
     return _methodChannel.invokeMethod<bool>(
       'isAuthenticate',
     ).then((bool? value) {
-      debugPrint("Flutter Plugin Debug: isAuthenticate() => result: $value");
+      debugPrint("IOS Plugin Debug: isAuthenticate() => result: $value");
       return value ?? false;
     });
   }
@@ -83,15 +82,7 @@ class KindeFlutterSdkIOS extends KindeFlutterSdkPlatform {
 //   UserProfile().rebuild(updates)
 // }
 
-// @override
-// Future<UserProfileV2> getUserProfileV2() {
-//   return _methodChannel.invokeMethod<bool>(
-//     'launch',
-//     <String, Object>{
-//       'url': url,
-//     },
-//   );
-// }
+
 
   @override
   Future<void> register(

@@ -28,6 +28,8 @@ if (flutterVersionName == null) {
 }
 
 android {
+    ndkVersion = "26.1.10909125"
+
     namespace "au.kinde.flutter_starter_kit.flutter_starter_kit"
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion

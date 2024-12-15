@@ -46,7 +46,7 @@ class _KindeClientOptionsMapper {
       audience: options.audience,
       client_id: options.client_id,
       redirect_uri: options.redirect_uri,
-      domain: options.domain,
+      domain: "https://${options.domain}",
       //todo
       isDangerouslyUseLocalStorage: options.isDangerouslyUseLocalStorage ?? false,
       logout_uri: options.logout_uri,

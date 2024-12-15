@@ -86,9 +86,10 @@ public class KindeFlutterSdkIosPlugin: NSObject, FlutterPlugin {
   
   private func initialize(_ call: FlutterMethodCall, _ result: FlutterResult)  {
     if let options = call.arguments as? [String: Any] {
+      let domain = options["domain"] as! String
       
       let config = Config(
-        domain: options["domain"] as! String,
+        domain: "https://\(domain)",
         clientId: options["client_id"] as! String,
         redirectUri: options["redirect_uri"] as! String,
         postLogoutRedirectUri: options["logout_uri"] as! String,

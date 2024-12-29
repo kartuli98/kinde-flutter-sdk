@@ -120,18 +120,23 @@ class KindeFlutterSdkIOS extends KindeFlutterSdkPlatform {
         'authUrlParams': authUrlParams?.toMap()
       },
     ).then((token) {
-      print("Flutter Plugin Debug: login() => token: $token");
-      return token ?? "";
+      String? result;
+      if(token != null) {
+        result = token.isEmpty ? null : token;
+      }
+      debugPrint("Flutter Plugin Debug: login() => token is not null: ${token != null}");
+      return result;
     });
   }
 
   @override
-  Future<UserProfileV2> getUserProfileV2(KindeClient client) {
+  Future<UserProfileV2?> getUserProfileV2(KindeClient client) {
     return _methodChannel.invokeMethod<dynamic>(
       'getUserProfile',
-    ).then((rawResult) {
-      final result = jsonDecode(Utf8Decoder().convert(rawResult));
-      debugPrint("Flutter Plugin Debug: getUserProfileV2() => result: $result");
+    ).then<UserProfileV2?>((rawResult) {
+        final result = jsonDecode(Utf8Decoder().convert(rawResult));
+        debugPrint(
+            "Flutter Plugin Debug: getUserProfileV2() => result: $result");
       if(result is String) {
         throw Exception(result);
       } else {
@@ -143,6 +148,9 @@ class KindeFlutterSdkIOS extends KindeFlutterSdkPlatform {
         builder.updatedAt = result["updated_at"];
         return builder.build();
       }
+    }).onError((e, st) {
+      debugPrint("Flutter Plugin Debug: getUserProfileV2() => error: $e");
+      return null;
     });
   }
 

@@ -123,9 +123,12 @@ Future<String?> login(
       'loginHint': loginHint,
       'additionalParams': authUrlParams?.toMap()
     },
-  ).then((token) {
-    print("Flutter Android Plugin Debug: login() => token: $token");
-    return token ?? "";
+  ).then<String?>((token) {
+    debugPrint("Flutter Android Plugin Debug: login() => token is not null: ${token != null}");
+    return token;
+  }).onError((e, st) {
+    debugPrint("Flutter Android Plugin Debug: login() => error: $e");
+    return null;
   });
 }
 

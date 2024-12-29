@@ -1,6 +1,7 @@
 import android.content.Context
 import android.util.Base64
 import androidx.appcompat.app.AppCompatActivity
+import io.flutter.Log
 import java.io.UnsupportedEncodingException
 import java.security.InvalidAlgorithmParameterException
 import java.security.InvalidKeyException
@@ -29,16 +30,19 @@ class Store(context: Context, private val key: String) {
   )
 
   fun saveState(state: String) {
+    Log.i("ANDROID DEBUG", "saveState: ${state}")
     store(AUTH_STATE_PREF, state)
   }
 
   fun getState(): String? = retrieve(AUTH_STATE_PREF)
 
   fun clearState() {
+    Log.i("ANDROID DEBUG", "clearState")
     authPrefs.edit().remove(AUTH_STATE_PREF).apply()
   }
 
   fun saveKeys(keys: String) {
+    Log.i("ANDROID DEBUG", "saveKeys: $keys")
     store(KEYS_PREF, keys)
   }
 

@@ -16,10 +16,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import au.kinde.sdk.api.OAuthApi
+import au.kinde.sdk.api.UsersApi
 import au.kinde.sdk.api.model.UserProfileV2
 import au.kinde.sdk.callApi
 import au.kinde.sdk.keys.Keys
+import au.kinde.sdk.keys.KeysApi
+import au.kinde.sdk.model.TokenType
+import au.kinde.sdk.utils.ClaimDelegate
 import au.kinde.sdk.utils.ClaimDelegate.getClaim
+import au.kinde.sdk.utils.TokenProvider
 import com.example.kinde_flutter_sdk_android.models.KindeClientOptions
 import com.google.gson.Gson
 import io.flutter.Log
@@ -45,6 +50,8 @@ import net.openid.appauth.EndSessionResponse
 import net.openid.appauth.ResponseTypeValues
 import net.openid.appauth.TokenRequest
 import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.math.BigInteger
 import java.security.KeyFactory
 import java.security.Signature
@@ -52,14 +59,6 @@ import java.security.spec.RSAPublicKeySpec
 import kotlin.concurrent.thread
 
 const val SDK_VERSION : String = "1.2.3"
-
-enum class TokenType {
-  ID_TOKEN, ACCESS_TOKEN
-}
-
-interface TokenProvider {
-  fun getToken(tokenType: TokenType): String?
-}
 
 /** KindeFlutterSdkAndroidPlugin */
 class KindeFlutterSdkAndroidPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, ActivityResultListener, TokenProvider {
@@ -78,8 +77,10 @@ class KindeFlutterSdkAndroidPlugin: FlutterPlugin, MethodCallHandler, ActivityAw
   private lateinit var state: AuthState
   private var store: Store? = null
   private var tokenRepository: TokenRepository? = null
-  private var oAuthApi: OAuthApi? = null
   private var apiClient: ApiClient? = null
+  private var oAuthApi: OAuthApi? = null
+  private var keysApi: KeysApi? = null
+  private var usersApi: UsersApi? = null
 
   private lateinit var kindeOptions: KindeClientOptions;
 
@@ -124,57 +125,88 @@ class KindeFlutterSdkAndroidPlugin: FlutterPlugin, MethodCallHandler, ActivityAw
         Uri.parse(LOGOUT_URL.format(kindeOptions.domain)),
       )
 
-
-      state = AuthState(serviceConfiguration)
-
-      store = Store(activity!!, kindeOptions.domain)
+      store = Store(context!!, kindeOptions.domain)
+      val stateJson = store?.getState()
+      if ( stateJson.isNullOrEmpty()) {
+        state = AuthState(serviceConfiguration)
+      } else {
+        state = AuthState.jsonDeserialize(stateJson)
+      }
 
       apiClient = ApiClient(HTTPS.format(kindeOptions.domain), authNames = arrayOf(BEARER_AUTH))
 
       tokenRepository = TokenRepository(apiClient!!.createService(TokenApi::class.java), SDK_VERSION)
-      oAuthApi = apiClient!!.createService(OAuthApi::class.java)
 
+      oAuthApi = apiClient!!.createService(OAuthApi::class.java)
+      keysApi = apiClient!!.createService(KeysApi::class.java)
+      usersApi = apiClient!!.createService(UsersApi::class.java)
+
+      if (store!!.getKeys().isNullOrEmpty()) {
+        keysApi!!.getKeys().enqueue(object : Callback<Keys> {
+          override fun onResponse(call: Call<Keys>, response: Response<Keys>) {
+            response.body()?.let { keys ->
+              store!!.saveKeys(gson.toJson(keys))
+            }
+          }
+
+          override fun onFailure(call: Call<Keys>, t: Throwable) {
+//            sdkListener.onException(Exception(t))
+          }
+        })
+      }
+
+      if (!stateJson.isNullOrEmpty()) {
+        if (isAuthenticated()) {
+          state.accessToken?.let { accessToken ->
+            apiClient!!.setBearerToken(accessToken)
+//            sdkListener.onNewToken(accessToken)
+          }
+        }
+      } else {
+//        sdkListener.onLogout()
+      }
+//      ClaimDelegate.tokenProvider = this
       result.success(true);
     } catch (e: Exception) {
       result.error(e.toString(), null, null);
     }
   }
 
+
+  private fun setActivity(activity: Activity?) {
+    this.activity = activity
+  }
+
   override fun onAttachedToActivity(activityPluginBinding: ActivityPluginBinding) {
     Log.i("ANDROID DEBUG", "onAttachedToActivity")
-    this.activity = activityPluginBinding.activity
+    setActivity(activityPluginBinding.activity);
     activityPluginBinding.addActivityResultListener(this);
   }
 
   override fun onDetachedFromActivityForConfigChanges() {
     Log.i("ANDROID DEBUG", "onDetachedFromActivityForConfigChanges")
-    activity = null
+    setActivity(null)
   }
 
   override fun onReattachedToActivityForConfigChanges(p0: ActivityPluginBinding) {
     Log.i("ANDROID DEBUG", "onReattachedToActivityForConfigChanges")
-    activity = p0.activity
+    setActivity(p0.activity)
     p0.addActivityResultListener(this);
   }
 
   override fun onDetachedFromActivity() {
     Log.i("ANDROID DEBUG", "onDetachedFromActivity")
-    activity = null
+    setActivity(null)
+
   }
 
  //  The onAttachedToEngine method is called when the plugin is first associated with the Flutter engine, setting up the
  //  communication channel between Dart and native code
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    Log.i("ANDROID DEBUG", "onAttachedToEngine")
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "kinde_flutter_sdk_android")
     channel.setMethodCallHandler(this)
     context = flutterPluginBinding.applicationContext
     authService = AuthorizationService(context!!)
-
-    val stateJson = store?.getState()
-     if ( !stateJson.isNullOrEmpty()) {
-        state = AuthState.jsonDeserialize(stateJson)
-    }
   }
 
 
@@ -212,6 +244,7 @@ class KindeFlutterSdkAndroidPlugin: FlutterPlugin, MethodCallHandler, ActivityAw
 
   private fun <T> callApi(call: Call<T>, refreshed: Boolean = false): T? {
     val (data, exception) = call.callApi(state, refreshed = refreshed)
+    Log.i("ANDROID DEBUG", "callApi:\ndata: $data,\nexception: $exception")
     if (data != null) {
       return data
     }
@@ -276,6 +309,7 @@ class KindeFlutterSdkAndroidPlugin: FlutterPlugin, MethodCallHandler, ActivityAw
       loginHint?.takeIf { it.isNotEmpty() }?.let {
         authRequestBuilder.setLoginHint(it)
       }
+
       val authRequest: AuthorizationRequest = authRequestBuilder
         .setNonce(null)
         .setScopes(kindeOptions.scopes)
@@ -288,21 +322,31 @@ class KindeFlutterSdkAndroidPlugin: FlutterPlugin, MethodCallHandler, ActivityAw
     }
   }
 
-    private fun isAuthenticate(result: Result): Unit {
-      result.success(state.isAuthorized && checkToken())
+    private fun isAuthenticate(result: Result) {
+      result.success(isAuthenticated());
+    }
+
+    private fun isAuthenticated(): Boolean {
+      return state.isAuthorized && checkToken();
     }
 
   private fun checkToken(): Boolean {
+    val isTokenExpired = isTokenExpired(au.kinde.sdk.model.TokenType.ACCESS_TOKEN)
+    Log.e("ANDROID DEBUG", "method checkToken():\nisTokenExpired: $isTokenExpired")
     if (isTokenExpired(au.kinde.sdk.model.TokenType.ACCESS_TOKEN)) {
       getToken(state.createTokenRefreshRequest())
     }
     if (state.isAuthorized) {
-      store?.getKeys()?.let { keysString ->
+      Log.e("ANDROID DEBUG", "store == null: ${store == null}")
+      val keysFromStore = store?.getKeys();
+      Log.e("ANDROID DEBUG", "keysFromStore: $keysFromStore")
+      keysFromStore?.let { keysString ->
         try {
+
           Gson().fromJson(keysString, Keys::class.java)?.let { keys ->
             keys.keys.firstOrNull()?.let { key ->
               val jwt = state.accessToken.orEmpty()
-
+              Log.e("ANDROID DEBUG", "method checkToken():\njwt: $jwt")
               val exponentB: ByteArray = decode(key.exponent, URL_SAFE)
               val modulusB: ByteArray = decode(key.modulus, URL_SAFE)
               val bigExponent = BigInteger(1, exponentB)
@@ -324,6 +368,7 @@ class KindeFlutterSdkAndroidPlugin: FlutterPlugin, MethodCallHandler, ActivityAw
         }
       }
     }
+    Log.e("ANDROID DEBUG", "just return false")
     return false
   }
 
@@ -409,11 +454,6 @@ class KindeFlutterSdkAndroidPlugin: FlutterPlugin, MethodCallHandler, ActivityAw
 
   }
 
-  override fun getToken(tokenType: TokenType): String? =
-    if (tokenType == TokenType.ACCESS_TOKEN) state.accessToken else state.idToken
-
-
-
   private fun getToken(tokenRequest: TokenRequest): Boolean {
     Log.i("ANDROID DEBUG", "getToken")
     val (resp, ex) = tokenRepository!!.getToken(
@@ -439,7 +479,7 @@ class KindeFlutterSdkAndroidPlugin: FlutterPlugin, MethodCallHandler, ActivityAw
   }
 
   private fun getTokenAndReturnIt(tokenRequest: TokenRequest): String? {
-    Log.i("ANDROID DEBUG", "getTokenAndReturnIt")
+    Log.i("ANDROID DEBUG", "method getTokenAndReturnIt")
     val (resp, ex) = tokenRepository!!.getToken(
       authState = state,
       tokenRequest = tokenRequest
@@ -472,6 +512,11 @@ class KindeFlutterSdkAndroidPlugin: FlutterPlugin, MethodCallHandler, ActivityAw
       result?.error("logout-error", "Logout failed: ${e.message}", null)
     }
   }
+
+  override fun getToken(tokenType: TokenType): String? =
+    if (tokenType == TokenType.ACCESS_TOKEN) state.accessToken else state.idToken
+
+
 
 
 }

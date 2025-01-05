@@ -5,7 +5,7 @@
 Pod::Spec.new do |s|
   s.name             = 'kinde_flutter_sdk_ios'
   s.version          = '0.0.1'
-  s.summary          = 'IOS implementation of the flutter_inappwebview plugin.'
+  s.summary          = 'IOS implementation of the kinde_flutter_sdk plugin.'
   s.description      = <<-DESC
 IOS implementation of the flutter_inappwebview plugin.
                        DESC

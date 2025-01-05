@@ -22,6 +22,8 @@ dependencies:
     path: ../kinde_flutter_sdk_android
   kinde_flutter_sdk_ios:
     path: ../kinde_flutter_sdk_ios
+  kinde_flutter_sdk_macos:
+    path: ../kinde_flutter_sdk_macos
 
 dev_dependencies:
   flutter_test:
@@ -54,6 +56,10 @@ flutter:
       web:
         default_package: kinde_flutter_sdk_web
         pluginClass: KindeFlutterSdkWeb
+      macos:
+        default_package: kinde_flutter_sdk_macos
+        pluginClass: KindeFlutterSdkMacos
+
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

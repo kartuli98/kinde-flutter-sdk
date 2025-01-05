@@ -173,6 +173,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  kinde_flutter_sdk_macos:
+    dependency: transitive
+    description:
+      path: "../kinde_flutter_sdk_macos"
+      relative: true
+    source: path
+    version: "0.0.1"
   kinde_flutter_sdk_platform_interface:
     dependency: transitive
     description:

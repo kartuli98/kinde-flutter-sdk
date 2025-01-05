@@ -9,10 +9,13 @@ PODS:
   - kinde_flutter_sdk_ios (0.0.1):
     - AppAuth (>= 1.6.2)
     - Flutter
+  - url_launcher_ios (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - kinde_flutter_sdk_ios (from `.symlinks/plugins/kinde_flutter_sdk_ios/ios`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 SPEC REPOS:
   trunk:
@@ -23,12 +26,15 @@ EXTERNAL SOURCES:
     :path: Flutter
   kinde_flutter_sdk_ios:
     :path: ".symlinks/plugins/kinde_flutter_sdk_ios/ios"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  kinde_flutter_sdk_ios: 8a9a30b1e5890617c69339b37c11dda8143e1ca7
+  kinde_flutter_sdk_ios: 561788458e8571aa067d0e983c11dd94cdac05fc
+  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
 
 PODFILE CHECKSUM: a57f30d18f102dd3ce366b1d62a55ecbef2158e5
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.15.2

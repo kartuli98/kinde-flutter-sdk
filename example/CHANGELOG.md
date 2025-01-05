@@ -1,1 +1,4 @@
-<!-- Ideally, this should get auto-generated via tools like [auto-changelog](https://github.com/CookPete/auto-changelog). Eventually, this will get set up as part of the repository template. -->
+1.0.4 kinde-flutter-sdk used code from native platforms libraries:
+web: kinde-auth-pkce-js:4.2.2
+android: kinde-sdk-android:1.2.4
+ios: kinde-sdk-ios:1.4.1

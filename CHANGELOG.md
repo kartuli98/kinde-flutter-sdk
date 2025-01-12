@@ -1,5 +1,7 @@
 # Changelog
 
+## 1.0.4
+
 ## 1.0.3
 
 - Added support for lang, connectionId and loginHunt auth params

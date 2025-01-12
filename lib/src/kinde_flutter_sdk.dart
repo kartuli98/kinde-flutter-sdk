@@ -23,7 +23,7 @@ import 'package:kinde_flutter_sdk/src/token/refresh_token_interceptor.dart';
 import 'package:kinde_flutter_sdk/src/token/token_api.dart';
 import 'package:kinde_flutter_sdk/src/token/token_utils.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pubspec_parse/pubspec_parse.dart';
+// import 'package:pubspec_parse/pubspec_parse.dart';
 
 class KindeFlutterSDK with TokenUtils, HandleNetworkMixin {
   static const _orgCodeParamName = 'org_code';

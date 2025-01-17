@@ -17,7 +17,7 @@ void main() async {
       scopes: ["email","profile","offline","openid"] // optional
   );
 
-  // await EncryptedBox.init();
+  await EncryptedBox.init();
   runApp(const MyApp());
 }
 

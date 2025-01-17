@@ -11,32 +11,21 @@ class OAuthWebScreen extends StatelessWidget {
   static Future? start({
     Key? key,
     GlobalKey<OAuthWebViewState>? globalKey,
-    required BuildContext context,
     required OAuthConfiguration configuration,
   }) {
     assert(
-        !kIsWeb ||
-            (kIsWeb &&
-                configuration.onSuccessAuth != null &&
-                configuration.onError != null &&
-                configuration.onCancel != null),
-        'You must set onSuccessAuth, onError and onCancel function when running on Web otherwise you will not get any result.');
-    if (kIsWeb) {
-      final oauthFlow = BaseOAuthFlow()
-        ..initOAuth(
-          configuration: configuration,
-        );
-      oauthFlow.onNavigateTo(OAuthWebAuth.instance.appBaseUrl);
-      return null;
-    }
-    return Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => OAuthWebScreen(
-                  key: key,
-                  globalKey: globalKey,
-                  configuration: configuration,
-                )));
+    !kIsWeb ||
+        (kIsWeb &&
+            configuration.onSuccessAuth != null &&
+            configuration.onError != null &&
+            configuration.onCancel != null),
+    'You must set onSuccessAuth, onError and onCancel function when running on Web otherwise you will not get any result.');
+    final oauthFlow = BaseOAuthFlow()
+      ..initOAuth(
+        configuration: configuration,
+      );
+    oauthFlow.onNavigateTo(OAuthWebAuth.instance.appBaseUrl);
+    return null;
   }
 
   late final BuildContext context;

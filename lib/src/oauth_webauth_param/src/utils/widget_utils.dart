@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -26,17 +27,17 @@ extension WidgetUtils on Widget {
   /// wait [waitToRender] to render the widget
   /// It's recommended to use a context when using this function.
   /// Check docs: https://docs.flutter.dev/release/breaking-changes/window-singleton#migration-guide
-  Future<void> _buildImageFromWidget(
-    BuildContext? context,
-    Widget widget,
-    Duration waitToRender,
-  ) async {
+  Future<ByteData?> _buildImageFromWidget(
+      BuildContext? context,
+      Widget widget,
+      Duration waitToRender,
+      ) async {
     final RenderRepaintBoundary repaintBoundary = RenderRepaintBoundary();
 
     final view = context != null
         ? View.of(context)
         : WidgetsBinding.instance.platformDispatcher.implicitView ??
-            WidgetsBinding.instance.platformDispatcher.views.first;
+        WidgetsBinding.instance.platformDispatcher.views.first;
 
     final logicalSize = view.physicalSize / view.devicePixelRatio;
     final imageSize = view.physicalSize;
@@ -58,7 +59,7 @@ extension WidgetUtils on Widget {
     renderView.prepareInitialFrame();
 
     final RenderObjectToWidgetElement<RenderBox> rootElement =
-        RenderObjectToWidgetAdapter<RenderBox>(
+    RenderObjectToWidgetAdapter<RenderBox>(
       container: repaintBoundary,
       child: widget,
     ).attachToRenderTree(buildOwner);
@@ -74,8 +75,16 @@ extension WidgetUtils on Widget {
     pipelineOwner.flushCompositingBits();
     pipelineOwner.flushPaint();
 
-    final ui.Image image = await repaintBoundary.toImage(
-        pixelRatio: imageSize.width / logicalSize.width);
-    await image.toByteData();
+    // Capture image and handle memory
+    try {
+      final ui.Image image = await repaintBoundary.toImage(
+          pixelRatio: imageSize.width / logicalSize.width);
+      final ByteData? byteData = await image.toByteData();
+      image.dispose();
+      return byteData;
+    } catch (e) {
+      debugPrint('Error rendering image: $e');
+      return null;
+    }
   }
 }
